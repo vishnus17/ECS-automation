@@ -6,7 +6,7 @@ import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
 import * as path from 'path';
 import * as ecrdeploy from 'cdk-ecr-deployment';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as ApplicationLoadBalancer from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import * as alb from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 
 export class WebserverEcsStack extends cdk.Stack {
@@ -70,9 +70,10 @@ export class WebserverEcsStack extends cdk.Stack {
     });
 
     // Create ECS load balancer
-    const loadBalancer = new ApplicationLoadBalancer.ApplicationLoadBalancer(this, 'WebserverLoadBalancer', {
+    const loadBalancer = new alb.ApplicationLoadBalancer(this, 'WebserverLoadBalancer', {
       vpc: cluster.vpc,
       internetFacing: true,
+      loadBalancerName: 'webserveralb',
     });
 
     // Create ECS listener
@@ -85,7 +86,7 @@ export class WebserverEcsStack extends cdk.Stack {
       port: 80,
       targets: [service],
       healthCheck: {
-        path: '/health',
+        path: '/',
         interval: cdk.Duration.seconds(60),
         timeout: cdk.Duration.seconds(5),
         healthyHttpCodes: '200',
